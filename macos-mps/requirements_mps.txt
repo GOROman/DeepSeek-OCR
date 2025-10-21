@@ -1,0 +1,29 @@
+# DeepSeek-OCR Requirements for MacOS MPS
+# Python 3.10+ recommended
+
+# PyTorch with MPS support (MacOS 12.3+)
+# Install with: pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+torch>=2.1.0
+torchvision>=0.16.0
+
+# Transformers (for model loading)
+transformers>=4.46.3
+tokenizers>=0.20.3
+
+# Image processing
+Pillow>=10.0.0
+PyMuPDF
+img2pdf
+
+# Utilities
+einops
+easydict
+addict
+numpy
+
+# Note: Do NOT install these on MacOS MPS:
+# - vllm (CUDA only)
+# - flash-attn (CUDA only)
+
+# Optional: For better image processing
+# opencv-python

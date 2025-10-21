@@ -58,6 +58,7 @@
 - [Install](#install)
 - [vLLM Inference](#vllm-inference)
 - [Transformers Inference](#transformers-inference)
+- [MacOS MPS (Apple Silicon)](#macos-mps-apple-silicon) 🍎
   
 
 
@@ -128,6 +129,61 @@ or you can
 cd DeepSeek-OCR-master/DeepSeek-OCR-hf
 python run_dpsk_ocr.py
 ```
+
+## MacOS MPS (Apple Silicon)
+For MacOS users with Apple Silicon (M1, M2, M3 chips), we provide an MPS-compatible version that runs without CUDA or vLLM dependencies.
+
+### Quick Start
+```bash
+cd macos-mps
+
+# Install dependencies
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+pip install -r requirements_mps.txt
+
+# Run inference
+python run_deepseek_ocr_mps.py
+```
+
+### Example Usage
+```python
+from transformers import AutoModel, AutoTokenizer
+import torch
+
+# Use MPS device (Apple Silicon GPU)
+device = "mps" if torch.backends.mps.is_available() else "cpu"
+
+model_name = 'deepseek-ai/DeepSeek-OCR'
+tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+model = AutoModel.from_pretrained(
+    model_name,
+    trust_remote_code=True,
+    torch_dtype=torch.bfloat16
+).eval().to(device)
+
+# Run OCR
+result = model.infer(
+    tokenizer,
+    prompt="<image>\n<|grounding|>Convert the document to markdown.",
+    image_file='your_image.jpg',
+    output_path='./output',
+    base_size=1024,
+    image_size=640,
+    crop_mode=True
+)
+```
+
+**Documentation:**
+- 📖 [Full MPS Guide (English)](macos-mps/README_MPS.md)
+- 📖 [クイックスタート (日本語)](macos-mps/QUICK_START_JP.md)
+- 💻 [Example Scripts](macos-mps/example_usage.py)
+
+**Key Features:**
+- ✓ No CUDA required
+- ✓ No vLLM dependency
+- ✓ Native MPS (Metal Performance Shaders) support
+- ✓ Runs on M1/M2/M3 MacBooks and Mac Studio
+
 ## Support-Modes
 The current open-source model supports the following modes:
 - Native resolution:
