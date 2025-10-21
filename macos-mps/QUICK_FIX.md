@@ -8,7 +8,27 @@ ImportError: cannot import name 'LlamaFlashAttention2' from 'transformers.models
 
 このエラーが発生した場合、以下の手順で解決できます。
 
-## 解決方法（3ステップ）
+## 🎯 推奨：統合セットアップ（一番簡単）
+
+モデルがまだダウンロードされていない場合、この方法が最も簡単です：
+
+```bash
+cd macos-mps
+python setup_and_fix.py
+```
+
+このスクリプトが自動的に：
+1. ✓ モデルコードをダウンロード
+2. ✓ Flash Attention問題を修正
+3. ✓ 完全なモデルをダウンロード（~3GB）
+4. ✓ 動作確認
+
+完了したら、すぐに使えます：
+```bash
+python ocr.py your_image.png
+```
+
+## 既にエラーが出た場合（3ステップ）
 
 ### ステップ1: 修正スクリプトを実行
 
