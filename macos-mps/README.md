@@ -44,6 +44,20 @@ python ocr.py --figure chart.png
 
 Results will be saved to `./output/`
 
+### ⚠️ First Run Issue?
+
+If you see an error like `ImportError: cannot import name 'LlamaFlashAttention2'`:
+
+```bash
+# Run the fix script
+python fix_model.py
+
+# Then try again
+python ocr.py image.jpg
+```
+
+See [QUICK_FIX.md](QUICK_FIX.md) for details or [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for more help.
+
 ## Usage
 
 ### CLI Tool

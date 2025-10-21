@@ -39,6 +39,27 @@ print(f"MPS available: {torch.backends.mps.is_available()}")
 
 ### ステップ 4: 最初のOCR実行
 
+#### ⚠️ よくあるエラーと対処法
+
+もし以下のようなエラーが出た場合：
+```
+ImportError: cannot import name 'LlamaFlashAttention2'
+```
+
+修正スクリプトを実行してください：
+```bash
+python fix_model.py
+```
+
+その後、もう一度実行：
+```bash
+python ocr.py your_image.jpg
+```
+
+詳しくは [QUICK_FIX.md](QUICK_FIX.md) または [TROUBLESHOOTING.md](TROUBLESHOOTING.md) を参照してください。
+
+#### 正常に動作する場合
+
 ```python
 from transformers import AutoModel, AutoTokenizer
 import torch
