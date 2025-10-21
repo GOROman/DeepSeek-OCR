@@ -2,6 +2,31 @@
 
 DeepSeek-OCR for MacOS MPSで発生する一般的な問題と解決方法
 
+## 🚀 クイックフィックス（推奨）
+
+問題が発生した場合、まずこれを試してください：
+
+```bash
+python fix_all.py
+```
+
+このスクリプトはすべての一般的な問題を自動的に修正します：
+- Flash Attention互換性問題
+- CUDA参照の削除
+- デバイスタイプの修正
+- Pythonキャッシュのクリア
+
+修正後、以下を実行：
+```bash
+# MPSで試す
+python ocr.py image.png
+
+# MPSで問題が発生する場合、CPUモードを使用
+python ocr.py --cpu image.png
+```
+
+---
+
 ## ❌ ImportError: cannot import name 'LlamaFlashAttention2'
 
 ### エラーメッセージ
@@ -14,10 +39,18 @@ Hugging Faceからダウンロードされたモデルコードが、Flash Atten
 
 ### 解決方法
 
-#### 方法1: 自動修正スクリプトを使用（推奨）
+#### 方法1: 統合修正スクリプトを使用（最も推奨）
 
 ```bash
-python fix_model.py
+python fix_all.py
+```
+
+このスクリプトはすべての互換性問題を一度に修正します。
+
+#### 方法2: 個別修正スクリプト
+
+```bash
+python fix_correct.py
 ```
 
 このスクリプトは：
@@ -68,6 +101,123 @@ rm -rf ~/.cache/huggingface/modules/transformers_modules/deepseek*
 # 修正後に再実行
 python test_ocr.py your_image.png
 ```
+
+## ❌ NameError: name 'LlamaSdpaAttention' is not defined
+
+### エラーメッセージ
+```
+NameError: name 'LlamaSdpaAttention' is not defined
+```
+
+### 原因
+古い修正スクリプトがLlamaFlashAttention2をLlamaSdpaAttentionに置き換えましたが、LlamaSdpaAttentionクラスがすべてのtransformersバージョンで利用可能とは限りません。
+
+### 解決方法
+
+```bash
+python fix_all.py
+```
+
+または
+
+```bash
+python fix_correct.py
+```
+
+これらのスクリプトは標準のLlamaAttentionのみを使用します（最も互換性が高い）。
+
+---
+
+## ❌ CUDA not available / device_type='cuda' Error
+
+### エラーメッセージ
+```
+UserWarning: User provided device_type of 'cuda', but CUDA is not available
+RuntimeError: Torch not compiled with CUDA enabled
+```
+
+### 原因
+モデルコード内にCUDA固有の参照（`.cuda()` や `device_type='cuda'`）が残っています。
+
+### 解決方法
+
+```bash
+python fix_all.py
+```
+
+または個別に：
+
+```bash
+python fix_cuda_aggressive.py
+```
+
+これにより：
+- すべての `.cuda()` 呼び出しを削除
+- `device_type='cuda'` を `device_type='cpu'` に変更
+- `torch.cuda.amp.autocast` を `torch.autocast` に置き換え
+
+---
+
+## ❌ DynamicCache has no attribute 'seen_tokens'
+
+### エラーメッセージ
+```
+AttributeError: 'DynamicCache' object has no attribute 'seen_tokens'
+```
+
+### 原因
+transformers 4.50以降では、`seen_tokens`属性が削除されました。
+
+### 解決方法
+
+#### 推奨: transformers 4.46.3を使用
+
+```bash
+pip install transformers==4.46.3
+```
+
+このバージョンは `seen_tokens` と `get_seq_length` の両方をサポートしています。
+
+#### 代替: コードを修正
+
+```bash
+python fix_cache.py
+```
+
+`.seen_tokens` を `.get_seq_length(0)` に置き換えます。
+
+---
+
+## ❌ MPS Device Placement Error
+
+### エラーメッセージ
+```
+UserWarning: input_ids is on cpu, whereas the model is on mps
+RuntimeError: Placeholder storage has not been allocated on MPS device!
+```
+
+### 原因
+モデルコードがMPSデバイスへのテンソル転送を適切に処理していません。モデルはMPSにありますが、入力テンソルがCPUに残っています。
+
+### 解決方法
+
+#### 推奨: CPUモードを使用
+
+```bash
+python ocr.py --cpu image.png
+```
+
+CPUモードは遅いですが、確実に動作します。
+
+#### 代替: 修正スクリプトを試す（実験的）
+
+```bash
+python fix_mps_device.py
+```
+
+ただし、この問題は複雑なため、完全には解決できない可能性があります。
+
+---
 
 ## ❌ MPS not available
 
