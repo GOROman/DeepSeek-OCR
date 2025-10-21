@@ -131,28 +131,63 @@ python run_dpsk_ocr.py
 ```
 
 ## MacOS MPS (Apple Silicon)
-For MacOS users with Apple Silicon (M1, M2, M3 chips), we provide an MPS-compatible version that runs without CUDA or vLLM dependencies.
 
-### Quick Start
+**Run DeepSeek-OCR on your Mac without CUDA or Docker**
+
+For MacOS users with Apple Silicon (M1, M2, M3 chips), we provide a simplified MPS-compatible implementation inspired by [Simon Willison's approach](https://simonwillison.net/2025/Oct/20/deepseek-ocr-claude-code/).
+
+### ⚡ One-Command Setup
+
 ```bash
 cd macos-mps
-
-# Install dependencies
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-pip install -r requirements_mps.txt
-
-# Run inference
-python run_deepseek_ocr_mps.py
+python3 setup.py
 ```
 
-### Example Usage
+This automated setup will:
+- ✓ Check your Python and MPS availability
+- ✓ Install PyTorch with MPS support
+- ✓ Install all required dependencies
+- ✓ Download the DeepSeek-OCR model (~3GB)
+- ✓ Create a test script ready to use
+
+### 🚀 Quick Usage
+
+```bash
+# Simple OCR
+python ocr.py image.jpg
+
+# Convert document to Markdown
+python ocr.py --markdown document.pdf
+
+# Process multiple files
+python ocr.py --batch images/*.jpg
+
+# High quality mode
+python ocr.py --large important_doc.jpg
+```
+
+### 📝 CLI Options
+
+```bash
+python ocr.py <image>              # Basic OCR
+python ocr.py --markdown <file>    # Convert to Markdown
+python ocr.py --figure <image>     # Parse figures/charts
+python ocr.py --batch <pattern>    # Process multiple files
+python ocr.py --tiny <image>       # Fast mode (512×512)
+python ocr.py --large <image>      # Best quality (1280×1280)
+python ocr.py --prompt "..." <img> # Custom prompt
+```
+
+### 💻 Python API
+
 ```python
 from transformers import AutoModel, AutoTokenizer
 import torch
 
-# Use MPS device (Apple Silicon GPU)
+# Setup device
 device = "mps" if torch.backends.mps.is_available() else "cpu"
 
+# Load model
 model_name = 'deepseek-ai/DeepSeek-OCR'
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 model = AutoModel.from_pretrained(
@@ -173,16 +208,50 @@ result = model.infer(
 )
 ```
 
-**Documentation:**
-- 📖 [Full MPS Guide (English)](macos-mps/README_MPS.md)
-- 📖 [クイックスタート (日本語)](macos-mps/QUICK_START_JP.md)
-- 💻 [Example Scripts](macos-mps/example_usage.py)
+### 📚 Documentation
 
-**Key Features:**
-- ✓ No CUDA required
-- ✓ No vLLM dependency
-- ✓ Native MPS (Metal Performance Shaders) support
-- ✓ Runs on M1/M2/M3 MacBooks and Mac Studio
+- 📖 [Main Guide](macos-mps/README.md) - Complete documentation with CLI usage
+- 📖 [Technical Details](macos-mps/README_MPS.md) - Deep dive into MPS implementation
+- 📖 [クイックスタート](macos-mps/QUICK_START_JP.md) - Japanese quick start guide
+- 💻 [Python Examples](macos-mps/example_usage.py) - Code examples
+- 🎮 [Interactive Demo](macos-mps/demo.py) - Try `python demo.py`
+
+### ✨ Key Features
+
+- ✅ **No CUDA Required** - Works natively on MacOS
+- ✅ **No Docker Needed** - Direct installation
+- ✅ **No vLLM Dependency** - Uses transformers only
+- ✅ **Native MPS Support** - GPU acceleration via Metal
+- ✅ **Simple CLI Tool** - Easy command-line interface
+- ✅ **Batch Processing** - Process multiple files at once
+- ✅ **Multiple Modes** - Tiny/Small/Base/Large/Gundam
+
+### 🎯 Common Use Cases
+
+```bash
+# Extract text from screenshot
+python ocr.py --tiny screenshot.png
+
+# Convert PDF to Markdown
+python ocr.py --markdown research_paper.pdf
+
+# Parse chart data
+python ocr.py --figure sales_chart.png
+
+# Batch process scanned documents
+python ocr.py --large --batch scans/*.jpg
+
+# Custom extraction
+python ocr.py --prompt "Extract all tables" document.png
+```
+
+### 🔧 Requirements
+
+- **MacOS**: 12.3+ (for MPS support)
+- **Python**: 3.10+
+- **Memory**: 8GB+ recommended
+- **Storage**: ~5GB for model and dependencies
+- **Apple Silicon**: M1, M2, M3, or later
 
 ## Support-Modes
 The current open-source model supports the following modes:
